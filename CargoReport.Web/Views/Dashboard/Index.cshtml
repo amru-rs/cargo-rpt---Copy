@@ -1,0 +1,138 @@
+﻿@{
+    Layout = "~/Views/Shared/_LayoutHorizontal.cshtml";
+}
+@{
+    ViewBag.Title = "Report Dashboard";
+}
+<div class="row">
+    <div class="panel panel-default">
+        <div class="panel-heading">Search form</div>
+        <div class="panel-body">
+            <div class="form-inline">
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <div class="input-group date" id="dateFrom">
+                            <input type="text" name="dateFrom" id="txtDateFrom" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <div class="form-group">
+                        <div class="input-group date" id="dateTo">
+                            <input type="text" name="dateTo" id="txtDateTo" class="form-control" />
+                            <span class="input-group-addon">
+                                <span class="fa fa-calendar"></span>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn bg-purple-dark" type="button" id="btn-process">Search</button>
+            </div>
+        </div>
+    </div>
+    <div class="jqgrid-responsive mb-lg">
+        <table id="jqGridJSON"></table>
+        <div id="jqGridJSONPager"></div>
+    </div>
+</div>
+<!-- END Multiple List group-->
+@section Styles {
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/css/bootstrap-datetimepicker.css" rel="stylesheet" type="text/css" />
+    <link href="//cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.min.css" rel="stylesheet" type="text/css" />
+    <link href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css"/>
+    @Styles.Render("~/bundles/jqGridCss")
+}
+@section Scripts {
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.3/moment.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.14.30/js/bootstrap-datetimepicker.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/chosen/1.4.2/chosen.jquery.js"></script>
+    @Scripts.Render("~/bundles/jqGrid")
+
+    <script type="text/javascript">
+        $(function () {
+            $("#dateFrom").datetimepicker({
+                format: "YYYY/MM/DD",
+                defaultDate: new Date()
+            });
+
+            $("#dateTo").datetimepicker({
+                format: "YYYY/MM/DD",
+                defaultDate: new Date()
+            });
+
+            var gridJson = $("#jqGridJSON");
+
+            gridJson.jqGrid({
+                datatype: "local",
+                jsonReader: {
+                    root: "Rows",
+                    page: "Page",
+                    total: "Total",
+                    records: "Records",
+                    repeatitems: true,
+                    userdata: "UserData",
+                    id: "Id",
+                    cell: "RowCells"
+                },
+                colModel: [
+                    { label: "GSA CODE", name: "GsaCode"},
+                    { label: "GSA NAME", name: "GsaName"},
+                    { label: "AGENT CODE", name: "AgentCode" },
+                    { label: "AGENT NAME", name: "AgentName" },
+                    { label: "AMOUNT", name: "Amount", align: "right", sorttype: "number", formatter: "currency" },
+                    { label: "BANK NAME", name: "BankName" },
+                    { label: "RECEIPT DATE", name: "ReceiptDate", align: "center", formatter: "date", formatoptions: { newformat: "Y/m/d" } },
+                    { label: "REQUEST BY", name: "RequestBy" },
+                    { label: "REQUEST ON", name: "RequestOn", align: "center", formatter: "date", formatoptions: { newformat: "Y/m/d" } },
+                    { label: "APPROVE BY", name: "ApprovedBy" },
+                    { label: "APPROVE ON", name: "ApprovedOn", align: "center", formatter: "date", formatoptions: { newformat: "Y/m/d" } },
+                    { label: "APPROVE REMARKS", name: "ApprovedRemarks" },
+                    { label: "PAYMENT REFF NO", name: "PaymentReferenceNo" },
+                    { label: "PAYMENT REFF ID", name: "PaymentRefId" }
+                ],
+                mtype: "GET",
+                viewrecords: true,
+                autowidth: true,
+                shrinkToFit: false,
+                caption: "Cargo Report Information",
+                height: 280,
+                rowNum: 10,
+                rowList: [10, 20, 30, 100],
+                pager: "#jqGridJSONPager",
+                sortorder: "asc",
+                sortname: "ApprovedOn",
+                beforeSelectRow: function () {
+                    return false;
+                },
+                loadError: function (xhr, st, err) {
+                    alert("Type: " + st + "; Response: " + xhr.status + " " + xhr.statusText);
+                }
+            });
+
+            $(window).on("resize", function () {
+                var width = $(".jqgrid-responsive").width();
+                gridJson.setGridWidth(width);
+            }).resize();
+
+            $("#btn-process").on("click", function () {
+                var dtFrom = $("#dateFrom").data("DateTimePicker").date();
+                var dtTo = $("#dateTo").data("DateTimePicker").date();
+
+                if (dtFrom === null || dtTo === null) {
+                    alert("Silahkan isi parameter periode!");
+                    return false;
+                }
+
+                var currentUrl = "@Html.Raw(@Url.Action("GetGridData", "Dashboard", new { @dateFrom = "param1", @dateTo = "param2", @fop = "param3" }))"
+                    .replace("param1", moment(dtFrom).format("YYYY/MM/DD"))
+                    .replace("param2", moment(dtTo).format("YYYY/MM/DD"));
+
+                gridJson.jqGrid("setGridParam", { datatype: "json", url: currentUrl }).trigger("reloadGrid");
+                return false;
+            });
+        });
+    </script>
+}

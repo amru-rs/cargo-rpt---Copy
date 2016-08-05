@@ -1,0 +1,35 @@
+﻿@using CargoReport.Web.Helpers
+<!-- START Top Navbar-->
+<nav class="navbar topnavbar">
+    <!-- START navbar header-->
+    <div class="navbar-header">
+        <button type="button" data-toggle="collapse" data-target=".navbar-collapse" class="navbar-toggle">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+        </button>
+        <a href="@Url.Action("Index", "Dashboard")" class="navbar-brand">
+            <div class="brand-logo">
+                <img src="~/Content/Images/logo.png" alt="App Logo" class="img-responsive" />
+            </div>
+            <div class="brand-logo-collapsed">
+                <img src="~/Content/Images/logo-single.png" alt="App Logo" class="img-responsive" />
+            </div>
+        </a>
+    </div>
+    <!-- END navbar header-->
+    <!-- START Nav wrapper-->
+    <div class="navbar-collapse collapse">
+        <!-- START Left navbar-->
+        <ul class="nav navbar-nav">
+            <li></li>
+            <li class="@Html.IsActive(controller: "Dashboard")">
+                <a href="@Url.Action("Index", "Dashboard")">Topup Report</a>
+            </li>
+        </ul>
+        <!-- END Right Navbar-->
+    </div>
+    <!-- END Nav wrapper-->
+</nav>
+<!-- END Top Navbar-->
